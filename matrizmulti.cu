@@ -7,7 +7,7 @@
 typedef char* string;
 
 __global__
-void multiGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
+void multGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
   int row = blockIdx.y * blockDim.y + threadIdx.y;
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   if((row < rowsA) && (col < colsB)) {
@@ -17,6 +17,31 @@ void multiGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, fl
     }
     C[row * colsB + col] = sum;
   }
+}
+
+__host__
+void multCPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
+  int i, j, k;
+  for(i = 0; i < rowsA; i++){
+    for(j = 0; j< colsB; j++){
+      int sum = 0;
+      for(k = 0; k < rowsB; k++){
+        sum += A[i * colsA + k] * B[ k * colsB + j];
+      }
+      C[i * colsB + j] = sum;
+    }
+  }
+}
+
+__host__
+bool compare(float *A, float *B, int rows, int cols){
+  int i, j;
+	for(i = 0; i < rows; i++) {
+		for(j = 0; j < cols; j++) {
+			if (A[ i * cols + j] != B[i * cols + j]) return false;
+		}
+	}
+	return true;
 }
 
 __host__
@@ -103,7 +128,7 @@ int main(int argc, char** argv){
 	if (colsA != rowsB) return 1; // must be equal
 
 	start = clock();
-	mult(A, rowsA, colsA, B, rowsB, colsB, C);
+	multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
 	end = clock();
 
   // print(C, rowsA, colsB);
@@ -144,7 +169,7 @@ int main(int argc, char** argv){
   dim3 dimGrid(ceil((colsB) / float(blockSize)), ceil((rowsA) / float(blockSize)), 1);
 
   start = clock();
-	multiGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
+	multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
 	cudaDeviceSynchronize();
   end = clock();
 
@@ -156,7 +181,7 @@ int main(int argc, char** argv){
 	// print(h_C, rowsA, colsB);
 
 	if (!compare(h_C, C, rowsA, colsB)) {
-    printf("Error multiplying\n");
+    printf("Error multplying\n");
   } else {
     printf("Acceleration time: %lf\n", timeCPU / timeGPU);
     // save(h_C, rowsA, colsB, "GPU.out");
