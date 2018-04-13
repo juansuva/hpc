@@ -11,11 +11,9 @@ void multGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, flo
   int row = blockIdx.y * blockDim.y + threadIdx.y;
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   if((col < colsB)&&(row < rowsA)) {
-    int sum = 0;
     for(int M = 0; M < rowsB; M++) {
-      sum += A[row * colsA + M] * B[M * colsB + col];
+        C[row * colsB + col]+= A[row * colsA + M] * B[M * colsB + col];
     }
-    C[row * colsB + col] = sum;
   }
 }
 
@@ -24,11 +22,9 @@ void multCPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, flo
   int i, j;
   for(i = 0; i < rowsA; i++){
     for(j = 0; j< colsB; j++){
-      int sum = 0;
       for(int M = 0; M < rowsB; M++){
-        sum += A[i * colsA + M] * B[ M * colsB + j];
+        C[i * colsB + j] += A[i * colsA + M] * B[ M * colsB + j];
       }
-      C[i * colsB + j] = sum;
     }
   }
 }
@@ -93,7 +89,7 @@ int main(int argc, char** argv){
 
   //-------------------------------CPU--------------------------------------
 
-	time_t time_start, time_time_end;
+	time_t time_start, time_end;
 	float *A, *B, *C;
 	int rowsA, colsA, rowsB, colsB;
   double timeCPU, timeGPU;
@@ -171,7 +167,7 @@ int main(int argc, char** argv){
 	cudaDeviceSynchronize();
   time_end = clock();
 
-  timeGPU = difftime(time_end, time_time_start);
+  timeGPU = difftime(time_end, time_start);
   printf ("Tiempo trasncurrido en GPU: %.2lf seconds.\n", timeGPU);
 
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
