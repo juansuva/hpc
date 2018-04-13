@@ -7,7 +7,7 @@
 typedef char* string;
 
 __global__
-void multCU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
+void multiGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
   int row = blockIdx.y * blockDim.y + threadIdx.y;
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   if((row < rowsA) && (col < colsB)) {
@@ -46,6 +46,7 @@ void save(float *M, int rows, int cols, string file_name) {
   }
   fclose(stream);
 }
+
 
 
 __host__
@@ -90,7 +91,7 @@ int main(int argc, char** argv){
 	C = (float*)malloc(rowsA * colsB * sizeof(float));
 
 	load(A, arc1, rowsA, colsA);
-  // printf("rowsA: %d\n", rowsA);
+   // printf("rowsA: %d\n", rowsA);
   // printf("colsA: %d\n", colsA);
   // print(A, rowsA, colsA);
 
@@ -143,7 +144,7 @@ int main(int argc, char** argv){
   dim3 dimGrid(ceil((colsB) / float(blockSize)), ceil((rowsA) / float(blockSize)), 1);
 
   start = clock();
-	multCU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
+	multiGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
 	cudaDeviceSynchronize();
   end = clock();
 
