@@ -10,10 +10,10 @@ __global__
 void multGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
   int row = blockIdx.y * blockDim.y + threadIdx.y;
   int col = blockIdx.x * blockDim.x + threadIdx.x;
-  if((row < rowsA) && (col < colsB)) {
+  if((col < colsB)&&(row < rowsA)) {
     int sum = 0;
-    for(int k = 0; k < rowsB; k++) {
-      sum += A[row * colsA + k] * B[k * colsB + col];
+    for(int M = 0; M < rowsB; M++) {
+      sum += A[row * colsA + M] * B[M * colsB + col];
     }
     C[row * colsB + col] = sum;
   }
@@ -21,12 +21,12 @@ void multGPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, flo
 
 __host__
 void multCPU(float* A, int rowsA, int colsA, float* B, int rowsB, int colsB, float* C){
-  int i, j, k;
+  int i, j;
   for(i = 0; i < rowsA; i++){
     for(j = 0; j< colsB; j++){
       int sum = 0;
-      for(k = 0; k < rowsB; k++){
-        sum += A[i * colsA + k] * B[ k * colsB + j];
+      for(int M = 0; M < rowsB; M++){
+        sum += A[i * colsA + M] * B[ M * colsB + j];
       }
       C[i * colsB + j] = sum;
     }
@@ -72,8 +72,6 @@ void save(float *M, int rows, int cols, string file_name) {
   fclose(stream);
 }
 
-
-
 __host__
 void print(float* M, int rows, int cols){
   printf("---------------print matrix--------------\n");
@@ -95,7 +93,7 @@ int main(int argc, char** argv){
 
   //-------------------------------CPU--------------------------------------
 
-	time_t start, end;
+	time_t time_start, time_time_end;
 	float *A, *B, *C;
 	int rowsA, colsA, rowsB, colsB;
   double timeCPU, timeGPU;
@@ -109,7 +107,7 @@ int main(int argc, char** argv){
   fscanf(arc2, "%d", &rowsB);
   fscanf(arc2, "%d", &colsB);
 
-  //memory reserve in cpu
+  //RESERVA MEMORIA EN CPU
 
   A = (float*)malloc(rowsA * colsA * sizeof(float));
   B = (float*)malloc(rowsB * colsB * sizeof(float));
@@ -125,15 +123,15 @@ int main(int argc, char** argv){
   // printf("colsA: %d\n", colsB);
   // print(B, rowsB, colsB);
 
-	if (colsA != rowsB) return 1; // must be equal
+	if (colsA != rowsB) return 1; // tiene que ser iguales filas M2 y col M1
 
-	start = clock();
+	time_start = clock();
 	multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
-	end = clock();
+	time_end = clock();
 
   // print(C, rowsA, colsB);
 
-  timeCPU = difftime(end, start);
+  timeCPU = difftime(time_end, time_start);
   printf ("Elasped time in CPU: %.2lf seconds.\n", timeCPU);
 
   // save(C, rowsA, colsB, "CPU.out");
@@ -145,19 +143,19 @@ int main(int argc, char** argv){
 
 	error = cudaMalloc((void**)&d_A, rowsA * colsA * sizeof(float));
   if (error != cudaSuccess) {
-      printf("Error allocating memory to d_A");
+      printf("Error al asignar memoria a d_A");
       return 1;
   }
 
   error = cudaMalloc((void**)&d_B, rowsB * colsB * sizeof(float));
   if (error != cudaSuccess) {
-      printf("Error allocating memory to d_B");
+      printf("Error al asignar memoria a d_B");
       return 1;
   }
 
   error = cudaMalloc((void**)&d_C, rowsA * colsB * sizeof(float));
   if (error != cudaSuccess) {
-      printf("Error allocating memory to d_C");
+      printf("Error al asignar memoria a d_C");
       return 1;
   }
 
@@ -168,22 +166,22 @@ int main(int argc, char** argv){
 	dim3 dimblock(blockSize, blockSize, 1);
   dim3 dimGrid(ceil((colsB) / float(blockSize)), ceil((rowsA) / float(blockSize)), 1);
 
-  start = clock();
+  time_start = clock();
 	multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
 	cudaDeviceSynchronize();
-  end = clock();
+  time_end = clock();
 
-  timeGPU = difftime(end, start);
-  printf ("Elasped time in GPU: %.2lf seconds.\n", timeGPU);
+  timeGPU = difftime(time_end, time_time_start);
+  printf ("Tiempo trasncurrido en GPU: %.2lf seconds.\n", timeGPU);
 
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
 	// print(h_C, rowsA, colsB);
 
 	if (!compare(h_C, C, rowsA, colsB)) {
-    printf("Error multplying\n");
+    printf("Error al multiplicar\n");
   } else {
-    printf("Acceleration time: %lf\n", timeCPU / timeGPU);
+    printf("tiempo acelerado: %lf\n", timeCPU / timeGPU);
     // save(h_C, rowsA, colsB, "GPU.out");
   }
 
