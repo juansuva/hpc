@@ -179,12 +179,12 @@ int main(int argc, char** argv){
 		printf("nombre %c\n",propieties.name);
 		printf("Memoria  %zu\n",propieties.totalGlobalMem);
 		printf("Memoria  %zu\n",propieties.sharedMemPerBlock);
-	}**/
+	}
 
 	printf("selecione dispositivo");
 	scanf("%d",&iddiv );
 	cudaSetDevice(iddiv);
-
+*/
   //-------------------------------CPU--------------------------------------
 
 	time_t time_start, time_end;
@@ -243,25 +243,25 @@ int main(int argc, char** argv){
   float *d_A, *d_B, *d_C, *h_C, *d_s_C;
 	h_C = (float*)malloc(rowsA * colsB * sizeof(float));
 
-	error = cudaMalloc((void**)&d_A, rowsA * colsA * sizeof(float));
+	error = cudaMalloc((void**)&d_A,rowsA*colsA*sizeof(float));
   if (error != cudaSuccess) {
       printf("Error al asignar memoria a d_A");
       return 1;
   }
 
-  error = cudaMalloc((void**)&d_B, rowsB * colsB * sizeof(float));
+  error = cudaMalloc((void**)&d_B,rowsB*colsB*sizeof(float));
   if (error != cudaSuccess) {
       printf("Error al asignar memoria a d_B");
       return 1;
   }
 
-  error = cudaMalloc((void**)&d_C, rowsA * colsB * sizeof(float));
+  error = cudaMalloc((void**)&d_C,rowsA*colsB*sizeof(float));
   if (error != cudaSuccess) {
       printf("Error al asignar memoria a d_C");
       return 1;
   }
 
-  error = cudaMalloc((void**)&d_s_C, rowsA * colsB * sizeof(float));
+  error = cudaMalloc((void**)&d_s_C,rowsA*colsB*sizeof(float));
   if (error != cudaSuccess) {
       printf("Error al asignar memoria a d_s_C");
       return 1;
