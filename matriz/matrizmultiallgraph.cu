@@ -9,7 +9,7 @@ typedef char* string;
 #define HILOSXBLOCK 32 //¿máximo depende de la memorio compartida de la gpu?
 //d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C
 __global__
-void multGPUSHARE(int* A,int filA,int colA,int* B,int filB,int colB,int* C){//filC=filA,colC=colB
+void multGPUSHARE(float* A,int filA,int colA,float* B,int filB,int colB,float* C){//filC=filA,colC=colB
 
 	//Tamaño total de los elementos con que vamos a trabajar
 	__shared__ float A_s[HILOSXBLOCK][HILOSXBLOCK];
@@ -27,7 +27,7 @@ void multGPUSHARE(int* A,int filA,int colA,int* B,int filB,int colB,int* C){//fi
 	int row = by * HILOSXBLOCK + ty;
 	int col = bx * HILOSXBLOCK + tx;
 
-	int suma = 0;//para llevar la suma de las multiplicaciones
+	float suma = 0;//para llevar la suma de las multiplicaciones
 
 	int n = 0, m = 0;
   	while(m < gx && n < gy){
@@ -145,7 +145,7 @@ void guardar(float *resultado, int size, string file_name) {
     printf("Error opening file!\n");
     exit(1);
   }
-  int i, j;
+  int i;
   for (i = 0; i < size; i++) {
     printf("%f\n",resultado[i] );
     if (i + 1 == size) {
@@ -167,7 +167,7 @@ int main(int argc, char** argv){
 
   //-------------------------------CPU--------------------------------------
 
-	time_t time_start time_end;
+	time_t time_start, time_end;
 	float *A, *B, *C, *times;
 	int rowsA, colsA, rowsB, colsB;
   time_t timeCPU, timeGPU, timeGPUING;
@@ -210,7 +210,7 @@ int main(int argc, char** argv){
 	}
     //imprime(C,filA,colB);
   }else{
-    cout<<"Error, no se pueden multiplicar"<<endl;
+    printf("Error, no se pueden multiplicar");
     return 0;
   }
 
@@ -262,7 +262,7 @@ int main(int argc, char** argv){
 	  time_end = clock();
 
 	  timeGPUING = difftime(time_end, time_start);
-		times[i]=timeCPUING;
+		times[i]=timeGPUING;
 	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
 	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
