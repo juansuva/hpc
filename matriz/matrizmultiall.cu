@@ -7,7 +7,7 @@
 typedef char* string;
 
 #define TILE_WIDTH 32 //¿máximo?
-
+//d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C
 __global__
 void multGPUSHARE(int* A,int filA,int colA,int* B,int filB,int colB,int* C){//filC=filA,colC=colB
 
@@ -17,8 +17,8 @@ void multGPUSHARE(int* A,int filA,int colA,int* B,int filB,int colB,int* C){//fi
 
 	//Para saber en qué bloque y qué hilo estamos
 	int bx = blockIdx.x;
-  	int by = blockIdx.y;
-  	int tx = threadIdx.x;
+  int by = blockIdx.y;
+  int tx = threadIdx.x;
 	int ty = threadIdx.y;
 	int gx = gridDim.x;
 	int gy = gridDim.y;
@@ -172,15 +172,13 @@ int main(int argc, char** argv){
    // printf("rowsA: %d\n", rowsA);
   // printf("colsA: %d\n", colsA);
   // print(A, rowsA, colsA);
-
   load(B, arc2, rowsB, colsB);
   // printf("rowsA: %d\n", rowsB);
   // printf("colsA: %d\n", colsB);
   // print(B, rowsB, colsB);
-
  // tiene que ser iguales filas M2 y col M1
 
-  if(colA==filB){
+  if(colsA==rowsB){
   time_start = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end = clock();
@@ -194,13 +192,13 @@ int main(int argc, char** argv){
   // print(C, rowsA, colsB);
 
   timeCPU = difftime(time_end, time_start);
-  printf ("Elasped time in CPU: %.2lf seconds.\n", timeCPU);
+  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
 
-  // save(C, rowsA, colsB, "CPU.out");
+  // save(C, rowsA, colsB, "CPU.out"); ----------------------------
 
-	//-------------------------------GPU--------------------------------------
+	//-------------------------------GPU INGENUA--------------------------------------
   cudaError_t error = cudaSuccess;
-  float *d_A, *d_B, *d_C, *h_C;
+  float *d_A, *d_B, *d_C, *h_C, *d_s_C;
 	h_C = (float*)malloc(rowsA * colsB * sizeof(float));
 
 	error = cudaMalloc((void**)&d_A, rowsA * colsA * sizeof(float));
@@ -221,12 +219,18 @@ int main(int argc, char** argv){
       return 1;
   }
 
+  error = cudaMalloc((void**)&d_s_C, rowsA * colsB * sizeof(float));
+  if (error != cudaSuccess) {
+      printf("Error al asignar memoria a d_s_C");
+      return 1;
+  }
+
 	cudaMemcpy(d_A, A, rowsA * colsA * sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_B, B, rowsB * colsB * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_B, B, rowsB * colsB * sizeof(float), cudaMemcpyHostToDevice); //se copia de origen b a destico d_b
 
   int blockSize = 32;
 	dim3 dimblock(blockSize, blockSize, 1);
-  dim3 dimblock(blockSize, blockSize, 1);
+  dim3 dimGrid(blockSize, blockSize, 1);
   //dim3 dimGrid(ceil((colsB) / float(blockSize), ceil((rowsA) / float(blockSize)), 1);
 
   time_start = clock();
@@ -234,8 +238,8 @@ int main(int argc, char** argv){
 	cudaDeviceSynchronize();
   time_end = clock();
 
-  timeGPU = difftime(time_end, time_start);
-  printf ("Tiempo trasncurrido en GPU: %.2lf seconds.\n", timeGPU);
+  timeGPUING = difftime(time_end, time_start);
+  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
 
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -244,11 +248,32 @@ int main(int argc, char** argv){
 	if (!compare(h_C, C, rowsA, colsB)) {
     printf("Error al multiplicar\n");
   } else {
+    printf("tiempo acelerado: %lf\n", timeCPU / timeGPUING);
+    // save(h_C, rowsA, colsB, "GPU.out");
+  }
+
+  //-----------------------GPU  SHARED --------------------------------------
+
+  time_start = clock();
+	multGPUSHARE<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C);
+	cudaDeviceSynchronize();
+  time_end = clock();
+
+  timeGPU = difftime(time_end, time_start);
+  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
+
+  cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
+
+  // print(h_C, rowsA, colsB);
+
+  if (!compare(h_C, C, rowsA, colsB)) {
+    printf("Error al multiplicar\n");
+  } else {
     printf("tiempo acelerado: %lf\n", timeCPU / timeGPU);
     // save(h_C, rowsA, colsB, "GPU.out");
   }
 
 	free(A); free(B); free(C); free(h_C);
-	cudaFree(d_A); cudaFree(d_B); cudaFree(d_C);
+	cudaFree(d_A); cudaFree(d_B); cudaFree(d_C); cudaFree(d_s_C);
 	return 0;
 }

@@ -147,13 +147,13 @@ int main(void){
             //return -1;
         }
 
-	cudaMalloc((void**)&d_B,filB*colB*sizeof(int));
+	error=cudaMalloc((void**)&d_B,filB*colB*sizeof(int));
         if(error != cudaSuccess){
             cout<<"Error reservando memoria para d_B"<<endl;
             //return -1;
         }
 
-	cudaMalloc((void**)&d_C,filA*colB*sizeof(int));
+	error=cudaMalloc((void**)&d_C,filA*colB*sizeof(int));
         if(error != cudaSuccess){
             cout<<"Error reservando memoria para d_C"<<endl;
             //return -1;
