@@ -165,6 +165,25 @@ int main(int argc, char** argv){
     return 1;
   }
 
+	//--------config gpu-------------------///
+
+
+	int iddiv;
+	cudaGetDeviceCount(int *numdiv);
+	printf("%d  numero de GPUS\n",numdiv);
+
+	printf("sel",numdiv);
+	for (int i = 0; i < numdiv; i++) {
+		cudaGetDeviceProperties(cudaDeviceProp *propieties, i);
+		printf("nombre %c\n",propieties.name);
+		printf("Memoria  %zu\n",propieties.totalGlobalMem);
+		printf("Memoria  %zu\n",propieties.sharedMemPerBlock);
+	}
+
+	printf("selecione dispositivo");
+	scanf("%d",&iddiv );
+	cudaSetDevice(iddiv);
+
   //-------------------------------CPU--------------------------------------
 
 	time_t time_start, time_end;
@@ -205,7 +224,7 @@ int main(int argc, char** argv){
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end = clock();
 	timeCPU = difftime(time_end, time_start);
-  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
+  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", ((double)timeCPU));
 	times[i]=timeCPU;
 	}
     //imprime(C,filA,colB);
@@ -263,7 +282,7 @@ int main(int argc, char** argv){
 
 	  timeGPUING = difftime(time_end, time_start);
 		times[i]=timeGPUING;
-	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
+	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", ((double)timeGPUING));
 	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -272,7 +291,7 @@ int main(int argc, char** argv){
 	if (!compare(h_C, C, rowsA, colsB)) {
     printf("Error al multiplicar\n");
   } else {
-    printf("tiempo acelerado: %lf\n", timeCPU / timeGPUING);
+    printf("tiempo acelerado: %lf\n", ((double)(timeCPU / timeGPUING)));
     // save(h_C, rowsA, colsB, "GPU.out");
   }
 
@@ -285,7 +304,7 @@ int main(int argc, char** argv){
 
 	  timeGPU = difftime(time_end, time_start);
 		times[i]=timeGPU;
-	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
+	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", (double)(timeGPU));
 
 	}
   cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
@@ -295,7 +314,7 @@ int main(int argc, char** argv){
   if (!compare(h_C, C, rowsA, colsB)) {
     printf("Error al multiplicar\n");
   } else {
-    printf("tiempo acelerado: %lf\n", timeCPU / timeGPU);
+    printf("tiempo acelerado: %lf\n", (double)(timeCPU / timeGPU));
     // save(h_C, rowsA, colsB, "GPU.out");
   }
 
