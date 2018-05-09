@@ -138,6 +138,25 @@ void print(float* M, int rows, int cols){
   }
 }
 
+void guardar(float *resultado, int size, string file_name) {
+  FILE *f = fopen(file_name, "w");
+  fprintf(f, "%d\n", size);
+  if (f == NULL) {
+    printf("Error opening file!\n");
+    exit(1);
+  }
+  int i, j;
+  for (i = 0; i < size; i++) {
+    printf("%f\n",resultado[i] );
+    if (i + 1 == size) {
+      fprintf(f, "%.2f", resultado[i]);
+      printf("%s\n","st" );
+    } else {
+      fprintf(f, "%.2f,", resultado[i]);
+    }
+  }
+  fclose(f);
+}
 
 int main(int argc, char** argv){
 
@@ -149,7 +168,7 @@ int main(int argc, char** argv){
   //-------------------------------CPU--------------------------------------
 
 	time_t time_start time_end;
-	float *A, *B, *C;
+	float *A, *B, *C, *times;
 	int rowsA, colsA, rowsB, colsB;
   time_t timeCPU, timeGPU, timeGPUING;
 
@@ -163,7 +182,7 @@ int main(int argc, char** argv){
   fscanf(arc2, "%d", &colsB);
 
   //RESERVA MEMORIA EN CPU
-
+	times =  (float*)malloc(10 * 3 * sizeof(float));
   A = (float*)malloc(rowsA * colsA * sizeof(float));
   B = (float*)malloc(rowsB * colsB * sizeof(float));
 	C = (float*)malloc(rowsA * colsB * sizeof(float));
@@ -179,10 +198,16 @@ int main(int argc, char** argv){
  // tiene que ser iguales filas M2 y col M1
 
   if(colsA==rowsB){
+		for (int i = 0; i < 10; i++) {
+			/* code */
+
   time_start = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end = clock();
-
+	timeCPU = difftime(time_end, time_start);
+  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
+	times[i]=timeCPU;
+	}
     //imprime(C,filA,colB);
   }else{
     cout<<"Error, no se pueden multiplicar"<<endl;
@@ -190,9 +215,6 @@ int main(int argc, char** argv){
   }
 
   // print(C, rowsA, colsB);
-
-  timeCPU = difftime(time_end, time_start);
-  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
 
   // save(C, rowsA, colsB, "CPU.out"); ----------------------------
 
@@ -233,14 +255,16 @@ int main(int argc, char** argv){
   dim3 dimGrid(blockSize, blockSize, 1);
   //dim3 dimGrid(ceil((colsB) / float(blockSize), ceil((rowsA) / float(blockSize)), 1);
 
-  time_start = clock();
-	multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
-	cudaDeviceSynchronize();
-  time_end = clock();
+	for(int i=10;i<20;i++){
+	  time_start = clock();
+		multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
+		cudaDeviceSynchronize();
+	  time_end = clock();
 
-  timeGPUING = difftime(time_end, time_start);
-  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
-
+	  timeGPUING = difftime(time_end, time_start);
+		times[i]=timeCPUING;
+	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
+	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
 	// print(h_C, rowsA, colsB);
@@ -253,17 +277,19 @@ int main(int argc, char** argv){
   }
 
   //-----------------------GPU  SHARED --------------------------------------
+	for(int i=20;i<30;i++){
+	  time_start = clock();
+		multGPUSHARE<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C);
+		cudaDeviceSynchronize();
+	  time_end = clock();
 
-  time_start = clock();
-	multGPUSHARE<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C);
-	cudaDeviceSynchronize();
-  time_end = clock();
+	  timeGPU = difftime(time_end, time_start);
+		times[i]=timeGPU;
+	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
 
-  timeGPU = difftime(time_end, time_start);
-  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
-
+	}
   cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
-
+	guardar(times,30,"tiempos.csv");
   // print(h_C, rowsA, colsB);
 
   if (!compare(h_C, C, rowsA, colsB)) {
