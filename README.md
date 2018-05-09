@@ -13,7 +13,7 @@ siriushpc2018
 ```
 ### Para acceder al cluster
 ```
-ssh -l juansuva
+ssh -l juansuva 192.168.1.221
 ```
 contraseña:
 ```
