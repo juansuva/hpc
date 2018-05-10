@@ -3,6 +3,7 @@
 #include<malloc.h>
 #include <time.h>
 #include<cuda.h>
+#include <iostream>
 
 typedef char* string;
 
@@ -169,6 +170,8 @@ int main(int argc, char** argv){
 
 	int numdiv;
 	int iddiv;
+	const int kb = 1024;
+  const int mb = kb * kb;
 	cudaGetDeviceCount(&numdiv);
 	printf("%d  numero de GPUS\n",numdiv);
 
@@ -179,6 +182,14 @@ int main(int argc, char** argv){
 		printf("nombre %s\n",(char*)propieties.name);
 		printf("Memoria  %d\n",(int)propieties.totalGlobalMem);
 		printf("Memoria  %d\n",(int)propieties.sharedMemPerBlock);
+		std::cout<<"  Global memory:   " << props.totalGlobalMem / mb << "mb" << endl;
+		std::cout<<" Shared memory:   " << props.sharedMemPerBlock / kb << "kb" << endl;
+		std::cout<<" Constant memory: " << props.totalConstMem / kb << "kb" << endl;
+		std::cout<<" Block registers: " << props.regsPerBlock << endl
+		std::cout<<" Warp size:         " << props.warpSize << endl;
+		std::cout<<" Threads per block: " << props.maxThreadsPerBlock << endl;
+		std::cout<<" Max block dimensions: [ " << props.maxThreadsDim[0] << ", " << props.maxThreadsDim[1]  << ", " << props.maxThreadsDim[2] << " ]" << endl;
+		std::cout<<" Max grid dimensions:  [ " << props.maxGridSize[0] << ", " << props.maxGridSize[1]  << ", " << props.maxGridSize[2] << " ]" << endl;
 	}
 
 	printf("selecione dispositivo");
