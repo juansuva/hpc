@@ -185,7 +185,7 @@ int main(int argc, char** argv){
 		std::cout<<"  Global memory:   " << propieties.totalGlobalMem / mb << "mb" << std::endl;
 		std::cout<<" Shared memory:   " << propieties.sharedMemPerBlock / kb << "kb" << std::endl;
 		std::cout<<" Constant memory: " << propieties.totalConstMem / kb << "kb" << std::endl;
-		std::cout<<" Block registers: " << propieties.regsPerBlock << std::endl
+		std::cout<<" Block registers: " << propieties.regsPerBlock << std::endl;
 		std::cout<<" Warp size:         " << propieties.warpSize << std::endl;
 		std::cout<<" Threads per block: " << propieties.maxThreadsPerBlock << std::endl;
 		std::cout<<" Max block dimensions: [ " << propieties.maxThreadsDim[0] << ", " << propieties.maxThreadsDim[1]  << ", " << propieties.maxThreadsDim[2] << " ]" << std::endl;
