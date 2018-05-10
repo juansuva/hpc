@@ -1,12 +1,10 @@
 #include<stdio.h>
-#include<iostream>
 #include <stdlib.h>
 #include<malloc.h>
 #include <time.h>
 #include<cuda.h>
 
 typedef char* string;
-using namespace std;
 
 #define HILOSXBLOCK 32 //¿máximo depende de la memorio compartida de la gpu?
 //d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C
@@ -227,7 +225,7 @@ int main(int argc, char** argv){
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end_cpu = clock();
 	timeCPU = ((double)(time_end_cpu-time_start_cpu))/CLOCKS_PER_SEC);
-  printf ("El tiempo transcurrido en la CPU fue %lf segundos.\n", timeCPU);
+  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
 	times[i]=timeCPU;
 	}
     //imprime(C,filA,colB);
@@ -285,7 +283,7 @@ int main(int argc, char** argv){
 
 	  timeGPUING = ((double)(time_end_gpu_ing-time_start_gpu_ing))/CLOCKS_PER_SEC;
 		times[i]=timeGPUING;
-	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %lf seconds.\n", timeGPUING);
+	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
 	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -307,7 +305,7 @@ int main(int argc, char** argv){
 
 	  timeGPU = ((double)(time_end_gpu-time_start_gpu))/CLOCKS_PER_SEC;
 		times[i]=timeGPU;
-	  printf ("Tiempo trasncurrido en GPU_SHEAR: %lf seconds.\n", timeGPU;
+	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
 
 	}
   cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
