@@ -172,11 +172,11 @@ int main(int argc, char** argv){
 	cudaGetDeviceCount(&numdiv);
 	printf("%d  numero de GPUS\n",numdiv);
 
-	printf("sel",numdiv);
+
 	for (int i = 0; i < numdiv; i++) {
 		cudaDeviceProp propieties;
 		cudaGetDeviceProperties(&propieties, i);
-		printf("nombre %c\n",propieties.name);
+		printf("nombre %zu\n",propieties.name);
 		printf("Memoria  %zu\n",propieties.totalGlobalMem);
 		printf("Memoria  %zu\n",propieties.sharedMemPerBlock);
 	}
