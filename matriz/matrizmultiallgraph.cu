@@ -157,7 +157,7 @@ void guardar(float *resultado, int size, string file_name) {
   }
   fclose(f);
 }
-
+//asd
 int main(int argc, char** argv){
 
 	if (argc != 3) {
