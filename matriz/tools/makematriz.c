@@ -53,9 +53,9 @@ int main(int argc, char** argv) {
   int row, col;
   string archivo = argv[1];
   printf("File name: %s\n", archivo);
-  printf("ingrese el numero de filas", );
+  printf("ingrese el numero de filas" );
   scanf("%d", &row);
-  printf("ingrese el numero de filas", );
+  printf("ingrese el numero de columnas" );
   scanf("%d", &col);
   float *M = (float*)malloc(row*col*sizeof(float));
   fillMatrix(M, row, col);
