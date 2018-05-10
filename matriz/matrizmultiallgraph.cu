@@ -177,8 +177,8 @@ int main(int argc, char** argv){
 		cudaDeviceProp propieties;
 		cudaGetDeviceProperties(&propieties, i);
 		printf("nombre %s\n",(char*)propieties.name);
-		printf("Memoria  %s\n",(char*)propieties.totalGlobalMem);
-		printf("Memoria  %s\n",(char*)propieties.sharedMemPerBlock);
+		printf("Memoria  %d\n",(int)propieties.totalGlobalMem);
+		printf("Memoria  %d\n",(int)propieties.sharedMemPerBlock);
 	}
 
 	printf("selecione dispositivo");
