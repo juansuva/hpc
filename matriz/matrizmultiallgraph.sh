@@ -18,4 +18,4 @@ export CUDA_VISIBLE_DEVICES=0
 
 nvcc matrizmultiallgraph.cu -o mult
 
-./mult matrizuno matrizdos
+./mult matriz1 matriz2
