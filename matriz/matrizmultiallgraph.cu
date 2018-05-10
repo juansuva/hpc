@@ -5,8 +5,7 @@
 #include <time.h>
 #include<cuda.h>
 
-//typedef char* string;
-
+typedef char* string;
 using namespace std;
 
 #define HILOSXBLOCK 32 //¿máximo depende de la memorio compartida de la gpu?
@@ -223,13 +222,12 @@ int main(int argc, char** argv){
   if(colsA==rowsB){
 		for (int i = 0; i < 10; i++) {
 			/* code */
-	timeCPU=0;
+
   time_start_cpu = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end_cpu = clock();
-	timeCPU = ((double)(time_end_cpu-time_start_cpu))/CLOCKS_PER_SEC;
-	cout<<"El tiempo transcurrido en la CPU fue: "<<timeCPU<<endl;
-  //printf ("El tiempo transcurrido en la CPU fue %lf segundos.\n", timeCPU);
+	timeCPU = ((double)(time_end_cpu-time_start_cpu))/CLOCKS_PER_SEC);
+  printf ("El tiempo transcurrido en la CPU fue %lf segundos.\n", timeCPU);
 	times[i]=timeCPU;
 	}
     //imprime(C,filA,colB);
@@ -280,7 +278,6 @@ int main(int argc, char** argv){
   //dim3 dimGrid(ceil((colsB) / float(blockSize), ceil((rowsA) / float(blockSize)), 1);
 
 	for(int i=10;i<20;i++){
-		timeGPUING=0;
 	  time_start_gpu_ing = clock();
 		multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
 		cudaDeviceSynchronize();
@@ -288,8 +285,7 @@ int main(int argc, char** argv){
 
 	  timeGPUING = ((double)(time_end_gpu_ing-time_start_gpu_ing))/CLOCKS_PER_SEC;
 		times[i]=timeGPUING;
-		cout<<"Tiempo trasncurrido en GPU Algoritmo INGENUO:: "<<timeGPUING<<endl;
-//	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
+	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %lf seconds.\n", timeGPUING);
 	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -304,7 +300,6 @@ int main(int argc, char** argv){
 
   //-----------------------GPU  SHARED --------------------------------------
 	for(int i=20;i<30;i++){
-		timeGPU=0;
 	  time_start_gpu = clock();
 		multGPUSHARE<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C);
 		cudaDeviceSynchronize();
@@ -312,8 +307,7 @@ int main(int argc, char** argv){
 
 	  timeGPU = ((double)(time_end_gpu-time_start_gpu))/CLOCKS_PER_SEC;
 		times[i]=timeGPU;
-		cout<<"Tiempo trasncurrido en GPU Algoritmo INGENUO:: "<<timeGPU<<endl;
-	//  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU);
+	  printf ("Tiempo trasncurrido en GPU_SHEAR: %lf seconds.\n", timeGPU;
 
 	}
   cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
