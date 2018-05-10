@@ -149,10 +149,10 @@ void guardar(float *resultado, int size, string file_name) {
   for (i = 0; i < size; i++) {
     printf("resultado de %d :%f\n",i,resultado[i] );
     if (i + 1 == size) {
-      fprintf(f, "%.2f", resultado[i]);
+      fprintf(f, "%.f", resultado[i]);
       printf("%s\n","st" );
     } else {
-      fprintf(f, "%.2f,", resultado[i]);
+      fprintf(f, "%.f,", resultado[i]);
     }
   }
   fclose(f);

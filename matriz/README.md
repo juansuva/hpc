@@ -10,5 +10,5 @@ nvcc -arch=sm_30 matrizmultiallgraph.cu -o mult
 
 para ejecutarlo
 ```
-./mult matrizuno matrizdos
+./mult matriz1 matriz2
 ```
