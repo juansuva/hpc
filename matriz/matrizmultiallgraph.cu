@@ -180,8 +180,8 @@ int main(int argc, char** argv){
 		cudaDeviceProp propieties;
 		cudaGetDeviceProperties(&propieties, i);
 		printf("nombre %s\n",(char*)propieties.name);
-		printf("Memoria total %s\n",(char*)propieties.totalGlobalMem);
-		printf("Memoria compartida %s\n",(char*)propieties.sharedMemPerBlock);
+		printf("Memoria total %c\n",(char)propieties.totalGlobalMem);
+		printf("Memoria compartida %c\n",(char)propieties.sharedMemPerBlock);
 		std::wcout<<"  Global memory:   " << propieties.totalGlobalMem / mb << "mb" << std::endl;
 		std::wcout<<" Shared memory:   " << propieties.sharedMemPerBlock / kb << "kb" << std::endl;
 		std::wcout<<" Constant memory: " << propieties.totalConstMem / kb << "kb" << std::endl;
