@@ -5,7 +5,8 @@
 #include <time.h>
 #include<cuda.h>
 
-typedef char* string;
+//typedef char* string;
+
 using namespace std;
 
 #define HILOSXBLOCK 32 //¿máximo depende de la memorio compartida de la gpu?
