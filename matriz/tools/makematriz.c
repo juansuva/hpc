@@ -7,7 +7,8 @@ void fillMatrix(float *M, int row, int col) { // fill a matrix with random numbe
   float a = 5.0;
   for (int i = 0; i < row; i++) {
     for (int j = 0; j < col; j++) {
-      M[i * col + j] = (float)rand() / (float)(RAND_MAX / a);
+      //M[i * col + j] = (float)rand() / (float)(RAND_MAX / a);
+      M[i * col + j] = 1;
     }
   }
 }
