@@ -176,8 +176,8 @@ int main(int argc, char** argv){
 	for (int i = 0; i < numdiv; i++) {
 		cudaDeviceProp propieties;
 		cudaGetDeviceProperties(&propieties, i);
-		printf("nombre %c\n",(char)propieties.name);
-		printf("Memoria  %c\n",(char)propieties.totalGlobalMem);
+		printf("nombre %s\n",propieties.name);
+		printf("Memoria  %c\n",(char*)propieties.totalGlobalMem);
 		printf("Memoria  %c\n",(char)propieties.sharedMemPerBlock);
 	}
 
