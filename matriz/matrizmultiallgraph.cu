@@ -182,14 +182,14 @@ int main(int argc, char** argv){
 		printf("nombre %s\n",(char*)propieties.name);
 		printf("Memoria  %d\n",(int)propieties.totalGlobalMem);
 		printf("Memoria  %d\n",(int)propieties.sharedMemPerBlock);
-		std::cout<<"  Global memory:   " << propieties.totalGlobalMem / mb << "mb" << std::endl;
-		std::cout<<" Shared memory:   " << propieties.sharedMemPerBlock / kb << "kb" << std::endl;
-		std::cout<<" Constant memory: " << propieties.totalConstMem / kb << "kb" << std::endl;
-		std::cout<<" Block registers: " << propieties.regsPerBlock << std::endl;
-		std::cout<<" Warp size:         " << propieties.warpSize << std::endl;
-		std::cout<<" Threads per block: " << propieties.maxThreadsPerBlock << std::endl;
-		std::cout<<" Max block dimensions: [ " << propieties.maxThreadsDim[0] << ", " << propieties.maxThreadsDim[1]  << ", " << propieties.maxThreadsDim[2] << " ]" << std::endl;
-		std::cout<<" Max grid dimensions:  [ " << propieties.maxGridSize[0] << ", " << propieties.maxGridSize[1]  << ", " << propieties.maxGridSize[2] << " ]" << std::endl;
+		std::wcout<<"  Global memory:   " << propieties.totalGlobalMem / mb << "mb" << std::endl;
+		std::wcout<<" Shared memory:   " << propieties.sharedMemPerBlock / kb << "kb" << std::endl;
+		std::wcout<<" Constant memory: " << propieties.totalConstMem / kb << "kb" << std::endl;
+		std::wcout<<" Block registers: " << propieties.regsPerBlock << std::endl;
+		std::wcout<<" Warp size:         " << propieties.warpSize << std::endl;
+		std::wcout<<" Threads per block: " << propieties.maxThreadsPerBlock << std::endl;
+		std::wcout<<" Max block dimensions: [ " << propieties.maxThreadsDim[0] << ", " << propieties.maxThreadsDim[1]  << ", " << propieties.maxThreadsDim[2] << " ]" << std::endl;
+		std::wcout<<" Max grid dimensions:  [ " << propieties.maxGridSize[0] << ", " << propieties.maxGridSize[1]  << ", " << propieties.maxGridSize[2] << " ]" << std::endl;
 	}
 
 	printf("selecione dispositivo");
