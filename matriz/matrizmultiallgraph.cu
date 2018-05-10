@@ -224,7 +224,7 @@ int main(int argc, char** argv){
   time_start_cpu = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
   time_end_gpu = clock();
-	timeCPU = ((double)(time_start_cpu-time_end_cpu))/CLOCKS_PER_SEC;
+	timeCPU = ((double)(time_end_cpu-time_start_cpu))/CLOCKS_PER_SEC;
   printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", ((double)timeCPU));
 	times[i]=timeCPU;
 	}
@@ -281,7 +281,7 @@ int main(int argc, char** argv){
 		cudaDeviceSynchronize();
 	  time_end_gpu_ing = clock();
 
-	  timeGPUING = ((double)(time_start_gpu_ing-time_end_gpu_ing))/CLOCKS_PER_SEC;
+	  timeGPUING = ((double)(time_end_gpu_ing-time_start_gpu_ing))/CLOCKS_PER_SEC;
 		times[i]=timeGPUING;
 	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", ((double)timeGPUING));
 	}
@@ -303,7 +303,7 @@ int main(int argc, char** argv){
 		cudaDeviceSynchronize();
 	  time_end_gpu = clock();
 
-	  timeGPU = ((double)(time_start_gpu-time_end_gpu))/CLOCKS_PER_SEC;
+	  timeGPU = ((double)(time_end_gpu-time_start_gpu))/CLOCKS_PER_SEC;
 		times[i]=timeGPU;
 	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", (double)(timeGPU));
 
@@ -316,7 +316,7 @@ int main(int argc, char** argv){
   if (!compare(h_C, C, rowsA, colsB)) {
     printf("Error al multiplicar\n");
   } else {
-    printf("tiempo acelerado: %lf\n", (double)(timeCPU / timeGPU));
+    printf("tiempo acelerado en la cpu vs gpu_shared: %lf\n", (double)(timeCPU / timeGPU));
     // save(h_C, rowsA, colsB, "GPU.out");
   }
 
