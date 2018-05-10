@@ -167,15 +167,15 @@ int main(int argc, char** argv){
 
 	//--------config gpu-------------------///
 
-/**	int *numdiv;
+	int numdiv;
 	int iddiv;
-	cudaGetDeviceCount(numdiv);
+	cudaGetDeviceCount(&numdiv);
 	printf("%d  numero de GPUS\n",numdiv);
 
 	printf("sel",numdiv);
 	for (int i = 0; i < numdiv; i++) {
-		cudaDeviceProp *propieties;
-		cudaGetDeviceProperties(propieties, i);
+		cudaDeviceProp propieties;
+		cudaGetDeviceProperties(&propieties, i);
 		printf("nombre %c\n",propieties.name);
 		printf("Memoria  %zu\n",propieties.totalGlobalMem);
 		printf("Memoria  %zu\n",propieties.sharedMemPerBlock);
@@ -184,7 +184,7 @@ int main(int argc, char** argv){
 	printf("selecione dispositivo");
 	scanf("%d",&iddiv );
 	cudaSetDevice(iddiv);
-*/
+
   //-------------------------------CPU--------------------------------------
 
 	clock_t time_start_cpu, time_end_cpu,time_start_gpu_ing, time_end_gpu_ing,time_start_gpu, time_end_gpu;
