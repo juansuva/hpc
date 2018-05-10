@@ -187,10 +187,10 @@ int main(int argc, char** argv){
 */
   //-------------------------------CPU--------------------------------------
 
-	time_t time_start, time_end;
+	clock_t time_start_cpu, time_end_cpu,time_start_gpu_ing, time_end_gpu_ing,time_start_gpu, time_end_gpu;
 	float *A, *B, *C, *times;
 	int rowsA, colsA, rowsB, colsB;
-  time_t timeCPU, timeGPU, timeGPUING;
+  double timeCPU, timeGPU, timeGPUING;
 
   FILE *arc1, *arc2;
   arc1 = fopen(argv[1], "r");
@@ -221,10 +221,10 @@ int main(int argc, char** argv){
 		for (int i = 0; i < 10; i++) {
 			/* code */
 
-  time_start = clock();
+  time_start_cpu = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
-  time_end = clock();
-	timeCPU = difftime(time_end, time_start);
+  time_end_gpu = clock();
+	timeCPU = ((double)(time_start_cpu-time_end_cpu))/CLOCKS_PER_SEC;
   printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", ((double)timeCPU));
 	times[i]=timeCPU;
 	}
@@ -276,12 +276,12 @@ int main(int argc, char** argv){
   //dim3 dimGrid(ceil((colsB) / float(blockSize), ceil((rowsA) / float(blockSize)), 1);
 
 	for(int i=10;i<20;i++){
-	  time_start = clock();
+	  time_start_gpu_ing = clock();
 		multGPU<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_C);
 		cudaDeviceSynchronize();
-	  time_end = clock();
+	  time_end_gpu_ing = clock();
 
-	  timeGPUING = difftime(time_end, time_start);
+	  timeGPUING = ((double)(time_start_gpu_ing-time_end_gpu_ing))/CLOCKS_PER_SEC;
 		times[i]=timeGPUING;
 	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", ((double)timeGPUING));
 	}
@@ -298,12 +298,12 @@ int main(int argc, char** argv){
 
   //-----------------------GPU  SHARED --------------------------------------
 	for(int i=20;i<30;i++){
-	  time_start = clock();
+	  time_start_gpu = clock();
 		multGPUSHARE<<<dimGrid,dimblock>>>(d_A, rowsA, colsA, d_B, rowsB, colsB, d_s_C);
 		cudaDeviceSynchronize();
-	  time_end = clock();
+	  time_end_gpu = clock();
 
-	  timeGPU = difftime(time_end, time_start);
+	  timeGPU = ((double)(time_start_gpu-time_end_gpu))/CLOCKS_PER_SEC;
 		times[i]=timeGPU;
 	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", (double)(timeGPU));
 
