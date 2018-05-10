@@ -147,7 +147,7 @@ void guardar(float *resultado, int size, string file_name) {
   }
   int i;
   for (i = 0; i < size; i++) {
-    printf("%f\n",resultado[i] );
+    printf("resultado de %d :%f\n",i,resultado[i] );
     if (i + 1 == size) {
       fprintf(f, "%.2f", resultado[i]);
       printf("%s\n","st" );
@@ -223,9 +223,9 @@ int main(int argc, char** argv){
 
   time_start_cpu = clock();
   multCPU(A, rowsA, colsA, B, rowsB, colsB, C);
-  time_end_gpu = clock();
+  time_end_cpu = clock();
 	timeCPU = ((double)(time_end_cpu-time_start_cpu))/CLOCKS_PER_SEC;
-  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", ((double)timeCPU));
+  printf ("El tiempo transcurrido en la CPU fue %.2lf segundos.\n", timeCPU);
 	times[i]=timeCPU;
 	}
     //imprime(C,filA,colB);
@@ -283,7 +283,7 @@ int main(int argc, char** argv){
 
 	  timeGPUING = ((double)(time_end_gpu_ing-time_start_gpu_ing))/CLOCKS_PER_SEC;
 		times[i]=timeGPUING;
-	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", ((double)timeGPUING));
+	  printf ("Tiempo trasncurrido en GPU Algoritmo INGENUO: %.2lf seconds.\n", timeGPUING);
 	}
 	cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -305,7 +305,7 @@ int main(int argc, char** argv){
 
 	  timeGPU = ((double)(time_end_gpu-time_start_gpu))/CLOCKS_PER_SEC;
 		times[i]=timeGPU;
-	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", (double)(timeGPU));
+	  printf ("Tiempo trasncurrido en GPU_SHEAR: %.2lf seconds.\n", timeGPU;
 
 	}
   cudaMemcpy(h_C, d_C, rowsA * colsB * sizeof(float), cudaMemcpyDeviceToHost);
