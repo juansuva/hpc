@@ -150,10 +150,10 @@ void guardar(float *resultado, int size, string file_name) {
   for (i = 0; i < size; i++) {
     printf("resultado de %d :%f\n",i,resultado[i] );
     if (i + 1 == size) {
-      fprintf(f, "%f", resultado[i]);
+      fprintf(f, "%f\n", resultado[i]);
 
     } else {
-      fprintf(f, "%f,", resultado[i]);
+      fprintf(f, "%f\n", resultado[i]);
     }
   }
   fclose(f);
@@ -180,7 +180,7 @@ int main(int argc, char** argv){
 		cudaDeviceProp propieties;
 		cudaGetDeviceProperties(&propieties, i);
 		printf("nombre %s\n",(char*)propieties.name);
-		
+
 		std::wcout<<"  Global memory:   " << propieties.totalGlobalMem / mb << "mb" << std::endl;
 		std::wcout<<" Shared memory:   " << propieties.sharedMemPerBlock / kb << "kb" << std::endl;
 		std::wcout<<" Constant memory: " << propieties.totalConstMem / kb << "kb" << std::endl;

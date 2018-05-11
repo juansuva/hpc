@@ -16,6 +16,6 @@ export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64/${LD:LIBRARY_PATH:+:${LD_LIBRAR
 
 export CUDA_VISIBLE_DEVICES=0
 
-nvcc matrizmultiallgraph.cu -o mult
+nvcc -arch=sm_30 matrizmultiallgraph.cu -o mult
 
 ./mult matriz1 matriz2
