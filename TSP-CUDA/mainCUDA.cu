@@ -30,36 +30,36 @@ permutaciones_shared_register_big(int *matriz,int dimension,int *soluciones,int 
     {
             //Numeros aletorios en memoria shared para mayor rendimiento
             __shared__ unsigned int num_aleatorios[4000];
-          
+
             __syncthreads();
-	 
+
 	    int distancia_total = 99999999;
 	    int offset = (((blockIdx.x * blockDim.x) + threadIdx.x)*(dimension+1)); //Offset de la fila en la matriz soluciones
-            
+
             //Copiamos el trozo correspondiente de la solucion
-            unsigned int mi_solucion[45];
-            
+            unsigned int mi_solucion[85];
+
             for(int i = 0; i < num_elementos_copiados;i++)
             {
                 mi_solucion[i] = soluciones[offset+inicio_copia+i];
             }
-	 
+
             __syncthreads();
-            
+
             //Copiamos los numeros aleatorios en memoria shared
             for(int i = 0; i < 4000; i++)
             {
                     num_aleatorios[i] = d_num_aleatorios[i];
             }
-            
+
             __syncthreads();
-            
-	    //Realizamos 50000 permutaciones para intentar mejorar la solucion greedy
-	    for(int i = 0; i < 50000; i++)
+
+	    //Realizamos 90000 permutaciones para intentar mejorar la solucion greedy
+	    for(int i = 0; i < 90000; i++)
 	    {
-               
+
                  __syncthreads();
-                 
+
 		int posicion_1 = num_aleatorios[(i*2) % num_elementos_copiados] % num_elementos_copiados;
 		int posicion_2 = num_aleatorios[(i*2 + 1) % num_elementos_copiados] % num_elementos_copiados;
 		int temp = 0;
@@ -95,25 +95,25 @@ permutaciones_shared_register_big(int *matriz,int dimension,int *soluciones,int 
 
         __syncthreads();
         //Guardamos el coste en la ultima posicion de cada columna
-        
+
         for(int i = 0; i < num_elementos_copiados;i++)
         {
             soluciones[offset+i+inicio_copia] = mi_solucion[i];
         }
-            
+
        //Unimos las ciudades de cada trozo es decir
         //ultima del primer trozo - primera del segundo trozo etc
-        if(inicio_copia > 0 && num_elementos_copiados >= 44)
+        if(inicio_copia > 0 && num_elementos_copiados >= 84)
         {
-            distancia_total += matriz[soluciones[offset+inicio_copia+45]*dimension + mi_solucion[0]];
+            distancia_total += matriz[soluciones[offset+inicio_copia+85]*dimension + mi_solucion[0]];
         }
-        
+
         //Unimos la ultima con la primera
-        if(num_elementos_copiados <= 44  && inicio_copia != 0)
+        if(num_elementos_copiados <= 84  && inicio_copia != 0)
         {
             distancia_total += matriz[mi_solucion[num_elementos_copiados-1]*dimension + soluciones[offset]];
         }
-            
+
         soluciones[offset+dimension] += distancia_total;
     }
 
@@ -127,17 +127,17 @@ permutaciones(int *matriz,int dimension,int *soluciones,int *num_aleatorios)
     //Control de divergencia
     if((blockIdx.x * blockDim.x) + threadIdx.x < 10000)
     {
-	 
+
 	    int distancia_total = 99999999;
 	    int offset = (((blockIdx.x * blockDim.x) + threadIdx.x)*(dimension+1)); //Offset de la fila en la matriz soluciones
-	 
-            
+
+
 	    //Realizamos 100000 permutaciones para intentar mejorar la solucion inicial
 	    for(int i = 0; i < 100000; i++)
 	    {
-               
+
                  __syncthreads();
-                 
+
 		int posicion_1 = num_aleatorios[i*2] + (offset);
 		int posicion_2 = num_aleatorios[(i*2)+1] + (offset);
 		int temp = 0;
@@ -172,10 +172,10 @@ permutaciones(int *matriz,int dimension,int *soluciones,int *num_aleatorios)
 	    }
 
         __syncthreads();
-        
+
         //Unimos la primera y la ultima ciudad
         distancia_total += matriz[soluciones[offset]*dimension + soluciones[offset+dimension-1]];
-        
+
         //Guardamos el coste en la ultima posicion de cada columna
         soluciones[offset+dimension] = distancia_total;
     }
@@ -183,9 +183,9 @@ permutaciones(int *matriz,int dimension,int *soluciones,int *num_aleatorios)
 }
 
 
-//Podemos almacenar maximo 45x45 ciudades en la memoria __shared__ puesto que 
+//Podemos almacenar maximo 85x85 ciudades en la memoria __shared__ puesto que
 //tenemos una memoria __shared__ de 16Kb => 16384 elementos de 8 bits
-// 45x45x8 = 16200
+// 85x85x8 = 16200
 __global__ void
 permutaciones_shared_register(int *d_matriz,int dimension,int *soluciones,int *num_aleatorios)
 {
@@ -195,7 +195,7 @@ permutaciones_shared_register(int *d_matriz,int dimension,int *soluciones,int *n
     {
             //Matriz de distancias en memoria compartida para mayor rendimiento
             extern __shared__ unsigned char matriz[];
-            
+
             if(!threadIdx.x) //Solo thread 0 inicializa la matriz compartida
             {
                 for(int i = 0; i < dimension*dimension; i++)
@@ -203,27 +203,27 @@ permutaciones_shared_register(int *d_matriz,int dimension,int *soluciones,int *n
                     matriz[i] = d_matriz[i];
                 }
             }
-            
+
             __syncthreads();
-	 
+
 	    int distancia_total = 99999999;
 	    int offset = (((blockIdx.x * blockDim.x) + threadIdx.x)*(dimension+1)); //Offset de la fila en la matriz soluciones
-            
-            unsigned char mi_solucion[45];
-            
+
+            unsigned char mi_solucion[85];
+
             for(int i = 0; i < dimension;i++)
             {
                 mi_solucion[i] = soluciones[offset+i];
             }
-	 
+
             __syncthreads();
-            
+
 	    //Realizamos 100000 permutaciones para intentar mejorar la solucion greedy
 	    for(int i = 0; i < 100000; i++)
 	    {
-               
+
                  __syncthreads();
-                 
+
 		int posicion_1 = num_aleatorios[i*2];
 		int posicion_2 = num_aleatorios[(i*2)+1];
 		int temp = 0;
@@ -259,15 +259,15 @@ permutaciones_shared_register(int *d_matriz,int dimension,int *soluciones,int *n
 
         __syncthreads();
         //Guardamos el coste en la ultima posicion de cada columna
-        
+
         for(int i = 0; i < dimension;i++)
         {
             soluciones[offset+i] = mi_solucion[i];
         }
-            
+
         //Unimos la primera y la ultima ciudad
         distancia_total += matriz[mi_solucion[0]*dimension + mi_solucion[dimension-1]];
-            
+
         soluciones[offset+dimension] = distancia_total;
     }
 
@@ -283,26 +283,26 @@ permutaciones_register(int *matriz,int dimension,int *soluciones,int *num_aleato
     //Control de divergencia
     if((blockIdx.x * blockDim.x) + threadIdx.x < 10000)
     {
-           
+
         int distancia_total = 99999999;
         int offset = (((blockIdx.x * blockDim.x) + threadIdx.x)*(dimension+1)); //Offset de la fila en la matriz soluciones
-        
-        unsigned char mi_solucion[50]; //Maximo 50 puesto que en compute capability 2.x y 3.x tenemos máximo 63 registros
+
+        unsigned char mi_solucion[90]; //Maximo 90 puesto que en compute capability 2.x y 3.x tenemos máximo 63 registros
                                         //y debemos tener en cuenta el resto de variables registradas
-        
+
         for(int i = 0; i < dimension;i++)
         {
             mi_solucion[i] = soluciones[offset+i];
         }
         
         __syncthreads();
-        
+
         //Realizamos 100000 permutaciones para intentar mejorar la solucion greedy
         for(int i = 0; i < 100000; i++)
         {
-            
+
                 __syncthreads();
-                
+
             int posicion_1 = num_aleatorios[i*2];
             int posicion_2 = num_aleatorios[(i*2)+1];
             int temp = 0;
@@ -338,16 +338,16 @@ permutaciones_register(int *matriz,int dimension,int *soluciones,int *num_aleato
 
         __syncthreads();
         //Guardamos el coste en la ultima posicion de cada columna
-        
+
         for(int i = 0; i < dimension;i++)
         {
             soluciones[offset+i] = mi_solucion[i];
         }
-        
-        
+
+
         //Unimos la primera y la ultima ciudad
         distancia_total += matriz[mi_solucion[0]*dimension + mi_solucion[dimension-1]];
-        
+
         soluciones[offset+dimension] = distancia_total;
     }
 
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
     srand(111);
 
     const int NUMERO_SOLUCIONES = 10000;
-     
+
     string str;
     int dimension;
     int *h_matriz; //Matriz de distancias
@@ -383,7 +383,7 @@ int main(int argc, char* argv[])
     int *h_num_aleatorios; //Vector de numeros aleatorios
 
     vector<int> soluciones_std;
-     
+
     f >> str; //Nos saltamos la palabra de cabecera
     f >> dimension;
 
@@ -415,31 +415,31 @@ int main(int argc, char* argv[])
             h_matriz[i*dimension + j] = distancia;
         }
     }
-    
-    //Generamos vector de numeros aleatorios 100000 elementos (50000*2)
+
+    //Generamos vector de numeros aleatorios 100000 elementos (90000*2)
     h_num_aleatorios = (int *)malloc((200000)*sizeof(int));
-    
+
     for(int i = 0; i < 200000; i++)
     {
         h_num_aleatorios[i] = rand() % dimension;
     }
-    
+
     //Generamos 10000 soluciones iniciales aleatorias
     for(int i = 0; i < dimension; i++)
     {
         soluciones_std.push_back(i);
     }
-    
+
     for(int i = 0; i < (dimension+1)*NUMERO_SOLUCIONES; i += dimension + 1)
     {
             std::random_shuffle(soluciones_std.begin(),soluciones_std.end());
-            
+
             for(int j = 0; j < soluciones_std.size(); j++)
             {
                 h_soluciones[i + j] = soluciones_std.at(j);
             }
     }
-    
+
 
     //Copiamos los vectores al device (host to device)
     int *d_matriz = NULL; //Matriz de distancias
@@ -461,7 +461,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to allocate device vector soluciones (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    
+
     err = cudaMalloc((void **)&d_num_aleatorios, 200000*sizeof(int));
 
     if (err != cudaSuccess)
@@ -479,8 +479,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to copy vector matriz from host to device (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    
-    
+
+
     err = cudaMemcpy(d_num_aleatorios, h_num_aleatorios, 200000*sizeof(int), cudaMemcpyHostToDevice);
 
 
@@ -489,8 +489,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to copy vector numeros aleatorios from host to device (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    
-    
+
+
     err = cudaMemcpy(d_soluciones, h_soluciones, (NUMERO_SOLUCIONES*(dimension+1))*sizeof(int), cudaMemcpyHostToDevice);
 
 
@@ -499,41 +499,41 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to copy vector soluciones from host to device (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-	
 
 
-        
+
+
     double start_time_calculo = omp_get_wtime();
 
-    //Lanzamos 40 bloques con 250 hebras por bloque = 10000 hebras
-    
-    //Mayor que 50 ciudades no cabe en registros ni en memoria shared (método mas lento)
-    if(dimension > 50){
-       // permutaciones<<<40, 250>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
+    //Lanzamos 40 bloques con 290 hebras por bloque = 10000 hebras
+
+    //Mayor que 90 ciudades no cabe en registros ni en memoria shared (método mas lento)
+    if(dimension > 90){
+       // permutaciones<<<40, 290>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
         int inicio_copia = 0;
         int num_elementos_copiados = 0;
-        
-        for(int i = 0; i < (dimension/45) +  1; i++ )
+
+        for(int i = 0; i < (dimension/85) +  1; i++ )
         {
             num_elementos_copiados = 0;
-            
-            for(int j = inicio_copia; j < (dimension*i)+45; j++)
+
+            for(int j = inicio_copia; j < (dimension*i)+85; j++)
             {
-                if(j >= dimension || num_elementos_copiados == 44)
+                if(j >= dimension || num_elementos_copiados == 84)
                     break;
-                
+
                 num_elementos_copiados++;
             }
-            permutaciones_shared_register_big<<<40, 250>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios,num_elementos_copiados,inicio_copia);
+            permutaciones_shared_register_big<<<40, 290>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios,num_elementos_copiados,inicio_copia);
             cudaDeviceSynchronize(); //Barrera
-            
-            inicio_copia = (i+1)*45;
+
+            inicio_copia = (i+1)*85;
         }
     }
-    else if(dimension <= 45) //Cabe en registros y memoria shared (el mas rápido)
-        permutaciones_shared_register<<<40, 250,dimension*dimension*sizeof(unsigned char)>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
-    else if(dimension > 45 && dimension <= 50) //Solo cabe en registros
-        permutaciones_register<<<40, 250>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
+    else if(dimension <= 85) //Cabe en registros y memoria shared (el mas rápido)
+        permutaciones_shared_register<<<40, 290,dimension*dimension*sizeof(unsigned char)>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
+    else if(dimension > 85 && dimension <= 90) //Solo cabe en registros
+        permutaciones_register<<<40, 290>>>(d_matriz, dimension, d_soluciones,d_num_aleatorios);
 
     cudaDeviceSynchronize(); //Barrera
 
@@ -568,7 +568,7 @@ int main(int argc, char* argv[])
         }
     }
 
-	
+
     //Imprimimos la mejor solucion y su coste
     cout << "Distancia total de la mejor solucion: " << h_soluciones[indice_solucion+dimension] << endl;
     for(int i = indice_solucion; i < indice_solucion+dimension; i++)
@@ -592,7 +592,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to free device vector matriz (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    
+
     err = cudaFree(d_num_aleatorios);
 
     if (err != cudaSuccess)
@@ -600,7 +600,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed to free device vector numeros aleatorios (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    
+
     free(h_matriz);
     free(h_soluciones);
     free(h_num_aleatorios);
