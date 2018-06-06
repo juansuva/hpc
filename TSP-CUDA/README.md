@@ -11,3 +11,7 @@ Compile mainCUDA.cu:
 ```
 nvcc mainCUDA.cc -o mainCUDA -Xcompiler -fopenmp -O2
 ```
+
+[paper is here:](https://es.sharelatex.com/read/ngpqwphrcfpj)
+
+
